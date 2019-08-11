@@ -10,13 +10,17 @@
 
 'use strict';
 
-const DeprecatedColorPropType = require('DeprecatedColorPropType');
-const DeprecatedEdgeInsetsPropType = require('DeprecatedEdgeInsetsPropType');
+const DeprecatedColorPropType = require('../DeprecatedPropTypes/DeprecatedColorPropType');
+const DeprecatedEdgeInsetsPropType = require('../DeprecatedPropTypes/DeprecatedEdgeInsetsPropType');
+const DeprecatedStyleSheetPropType = require('../DeprecatedPropTypes/DeprecatedStyleSheetPropType');
 const PropTypes = require('prop-types');
-const DeprecatedStyleSheetPropType = require('DeprecatedStyleSheetPropType');
-const TextStylePropTypes = require('TextStylePropTypes');
+const TextStylePropTypes = require('./TextStylePropTypes');
 
-const stylePropType = DeprecatedStyleSheetPropType(TextStylePropTypes);
+const stylePropType: ReactPropsCheckType = DeprecatedStyleSheetPropType(
+  TextStylePropTypes,
+);
+
+const DataDetectorTypes = ['phoneNumber', 'link', 'email', 'none', 'all'];
 
 module.exports = {
   /**
@@ -25,7 +29,12 @@ module.exports = {
    *
    * See https://facebook.github.io/react-native/docs/text.html#ellipsizemode
    */
-  ellipsizeMode: PropTypes.oneOf(['head', 'middle', 'tail', 'clip']),
+  ellipsizeMode: (PropTypes.oneOf([
+    'head',
+    'middle',
+    'tail',
+    'clip',
+  ]): React$PropType$Primitive<'head' | 'middle' | 'tail' | 'clip'>),
   /**
    * Used to truncate the text with an ellipsis.
    *
@@ -37,7 +46,11 @@ module.exports = {
    *
    * See https://facebook.github.io/react-native/docs/text.html#textbreakstrategy
    */
-  textBreakStrategy: PropTypes.oneOf(['simple', 'highQuality', 'balanced']),
+  textBreakStrategy: (PropTypes.oneOf([
+    'simple',
+    'highQuality',
+    'balanced',
+  ]): React$PropType$Primitive<'simple' | 'highQuality' | 'balanced'>),
   /**
    * Invoked on mount and layout changes.
    *
@@ -132,4 +145,14 @@ module.exports = {
    * See https://facebook.github.io/react-native/docs/text.html#disabled
    */
   disabled: PropTypes.bool,
+  /**
+   * Determines the types of data converted to clickable URLs in text.
+   *
+   * See https://facebook.github.io/react-native/docs/text.html#dataDetectorType
+   */
+  dataDetectorType: (PropTypes.oneOf(
+    DataDetectorTypes,
+  ): React$PropType$Primitive<
+    'phoneNumber' | 'link' | 'email' | 'none' | 'all',
+  >),
 };

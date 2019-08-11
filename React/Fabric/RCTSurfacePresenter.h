@@ -10,9 +10,10 @@
 
 #import <React/RCTBridge.h>
 #import <React/RCTComponentViewFactory.h>
-#import <react/uimanager/ContextContainer.h>
 #import <React/RCTPrimitives.h>
+#import <React/RCTSurfacePresenterStub.h>
 #import <react/config/ReactNativeConfig.h>
+#import <react/utils/ContextContainer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
                         config:(std::shared_ptr<const facebook::react::ReactNativeConfig>)config;
 
 @property (nonatomic, readonly) RCTComponentViewFactory *componentViewFactory;
-@property (nonatomic, readonly) facebook::react::SharedContextContainer contextContainer;
+@property (nonatomic, readonly) facebook::react::ContextContainer::Shared contextContainer;
 
 @end
 
-@interface RCTSurfacePresenter (Surface)
+@interface RCTSurfacePresenter (Surface) <RCTSurfacePresenterStub>
 
 /**
  * Surface uses these methods to register itself in the Presenter.
@@ -47,8 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)startSurface:(RCTFabricSurface *)surface;
 - (void)unregisterSurface:(RCTFabricSurface *)surface;
-- (void)setProps:(NSDictionary *)props
-         surface:(RCTFabricSurface *)surface;
+- (void)setProps:(NSDictionary *)props surface:(RCTFabricSurface *)surface;
 
 - (nullable RCTFabricSurface *)surfaceForRootTag:(ReactTag)rootTag;
 
@@ -62,24 +62,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sets `minimumSize` and `maximumSize` layout constraints for the Surface.
  */
-- (void)setMinimumSize:(CGSize)minimumSize
-           maximumSize:(CGSize)maximumSize
-               surface:(RCTFabricSurface *)surface;
+- (void)setMinimumSize:(CGSize)minimumSize maximumSize:(CGSize)maximumSize surface:(RCTFabricSurface *)surface;
 
-@end
+- (BOOL)synchronouslyUpdateViewOnUIThread:(NSNumber *)reactTag props:(NSDictionary *)props;
 
-@interface RCTSurfacePresenter (Deprecated)
+- (void)addObserver:(id<RCTSurfacePresenterObserver>)observer;
 
-/**
- * Returns a underlying bridge.
- */
-- (RCTBridge *)bridge_DO_NOT_USE;
-
-@end
-
-@interface RCTBridge (Deprecated)
-
-@property (nonatomic) RCTSurfacePresenter *surfacePresenter;
+- (void)removeObserver:(id<RCTSurfacePresenterObserver>)observer;
 
 @end
 

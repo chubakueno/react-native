@@ -16,6 +16,9 @@ typedef void (^RCTImageLoaderPartialLoadBlock)(UIImage *image);
 typedef void (^RCTImageLoaderCompletionBlock)(NSError *error, UIImage *image);
 typedef dispatch_block_t RCTImageLoaderCancellationBlock;
 
+@protocol RCTImageURLLoader;
+@protocol RCTImageDataDecoder;
+
 /**
  * Provides an interface to use for providing a image caching strategy.
  */
@@ -48,8 +51,6 @@ typedef dispatch_block_t RCTImageLoaderCancellationBlock;
 @end
 
 @interface UIImage (React)
-
-@property (nonatomic, copy) CAKeyframeAnimation *reactKeyframeAnimation;
 
 /**
  * Memory bytes of the image with the default calculation of static image or GIF. Custom calculations of decoded bytes can be assigned manually.
@@ -87,6 +88,9 @@ typedef dispatch_block_t RCTImageLoaderCancellationBlock;
 
 - (instancetype)init;
 - (instancetype)initWithRedirectDelegate:(id<RCTImageRedirectProtocol>)redirectDelegate NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithRedirectDelegate:(id<RCTImageRedirectProtocol>)redirectDelegate
+                              loadersProvider:(NSArray<id<RCTImageURLLoader>> * (^)(void))getLoaders
+                             decodersProvider:(NSArray<id<RCTImageDataDecoder>> * (^)(void))getDecoders;
 
 /**
  * Loads the specified image at the highest available resolution.
@@ -151,11 +155,12 @@ typedef dispatch_block_t RCTImageLoaderCancellationBlock;
 
 @end
 
+/**
+ * DEPRECATED!! DO NOT USE
+ * Instead use `[_bridge moduleForClass:[RCTImageLoader class]]`
+ */
 @interface RCTBridge (RCTImageLoader)
 
-/**
- * The shared image loader instance
- */
 @property (nonatomic, readonly) RCTImageLoader *imageLoader;
 
 @end

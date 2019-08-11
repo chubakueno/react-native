@@ -10,28 +10,33 @@
 
 'use strict';
 
-const Animated = require('Animated');
-const Easing = require('Easing');
-const NativeMethodsMixin = require('NativeMethodsMixin');
-const Platform = require('Platform');
-const React = require('React');
+const Animated = require('../../Animated/src/Animated');
+const Easing = require('../../Animated/src/Easing');
+const NativeMethodsMixin = require('../../Renderer/shims/NativeMethodsMixin');
+const Platform = require('../../Utilities/Platform');
+const React = require('react');
 const PropTypes = require('prop-types');
-const Touchable = require('Touchable');
-const TouchableWithoutFeedback = require('TouchableWithoutFeedback');
+const Touchable = require('./Touchable');
+const TouchableWithoutFeedback = require('./TouchableWithoutFeedback');
 
 const createReactClass = require('create-react-class');
-const ensurePositiveDelayProps = require('ensurePositiveDelayProps');
-const flattenStyle = require('flattenStyle');
+const ensurePositiveDelayProps = require('./ensurePositiveDelayProps');
+const flattenStyle = require('../../StyleSheet/flattenStyle');
 
-import type {Props as TouchableWithoutFeedbackProps} from 'TouchableWithoutFeedback';
-import type {ViewStyleProp} from 'StyleSheet';
-import type {TVParallaxPropertiesType} from 'TVViewPropTypes';
-import type {PressEvent} from 'CoreEventTypes';
+import type {Props as TouchableWithoutFeedbackProps} from './TouchableWithoutFeedback';
+import type {ViewStyleProp} from '../../StyleSheet/StyleSheet';
+import type {TVParallaxPropertiesType} from '../AppleTV/TVViewPropTypes';
+import type {PressEvent} from '../../Types/CoreEventTypes';
 
 const PRESS_RETENTION_OFFSET = {top: 20, left: 20, right: 20, bottom: 30};
 
 type TVProps = $ReadOnly<{|
   hasTVPreferredFocus?: ?boolean,
+  nextFocusDown?: ?number,
+  nextFocusForward?: ?number,
+  nextFocusLeft?: ?number,
+  nextFocusRight?: ?number,
+  nextFocusUp?: ?number,
   tvParallaxProperties?: ?TVParallaxPropertiesType,
 |}>;
 
@@ -47,7 +52,7 @@ type Props = $ReadOnly<{|
  * On press down, the opacity of the wrapped view is decreased, dimming it.
  *
  * Opacity is controlled by wrapping the children in an Animated.View, which is
- * added to the view hiearchy.  Be aware that this can affect layout.
+ * added to the view hierarchy.  Be aware that this can affect layout.
  *
  * Example:
  *
@@ -148,6 +153,36 @@ const TouchableOpacity = ((createReactClass({
      * TV preferred focus (see documentation for the View component).
      */
     hasTVPreferredFocus: PropTypes.bool,
+    /**
+     * TV next focus down (see documentation for the View component).
+     *
+     * @platform android
+     */
+    nextFocusDown: PropTypes.number,
+    /**
+     * TV next focus forward (see documentation for the View component).
+     *
+     * @platform android
+     */
+    nextFocusForward: PropTypes.number,
+    /**
+     * TV next focus left (see documentation for the View component).
+     *
+     * @platform android
+     */
+    nextFocusLeft: PropTypes.number,
+    /**
+     * TV next focus right (see documentation for the View component).
+     *
+     * @platform android
+     */
+    nextFocusRight: PropTypes.number,
+    /**
+     * TV next focus up (see documentation for the View component).
+     *
+     * @platform android
+     */
+    nextFocusUp: PropTypes.number,
     /**
      * Apple TV parallax effects
      */
@@ -276,14 +311,26 @@ const TouchableOpacity = ((createReactClass({
         accessibilityHint={this.props.accessibilityHint}
         accessibilityRole={this.props.accessibilityRole}
         accessibilityStates={this.props.accessibilityStates}
+        accessibilityState={this.props.accessibilityState}
+        accessibilityActions={this.props.accessibilityActions}
+        onAccessibilityAction={this.props.onAccessibilityAction}
         style={[this.props.style, {opacity: this.state.anim}]}
         nativeID={this.props.nativeID}
         testID={this.props.testID}
         onLayout={this.props.onLayout}
         isTVSelectable={true}
+        nextFocusDown={this.props.nextFocusDown}
+        nextFocusForward={this.props.nextFocusForward}
+        nextFocusLeft={this.props.nextFocusLeft}
+        nextFocusRight={this.props.nextFocusRight}
+        nextFocusUp={this.props.nextFocusUp}
         hasTVPreferredFocus={this.props.hasTVPreferredFocus}
         tvParallaxProperties={this.props.tvParallaxProperties}
         hitSlop={this.props.hitSlop}
+        focusable={
+          this.props.focusable !== false && this.props.onPress !== undefined
+        }
+        onClick={this.touchableHandlePress}
         onStartShouldSetResponder={this.touchableHandleStartShouldSetResponder}
         onResponderTerminationRequest={
           this.touchableHandleResponderTerminationRequest
