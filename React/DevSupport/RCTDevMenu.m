@@ -294,14 +294,15 @@ RCT_EXPORT_MODULE()
   [items addObject:[RCTDevMenuItem buttonItemWithTitleBlock:^NSString *{
     return @"Configure Bundler";
   } handler:^{
+    NSString* ipPlaceholder = @"0.0.0.0";
     UIAlertController * alertController = [UIAlertController alertControllerWithTitle: @"Configure Bundler"
                                                                               message: @"Provide a custom bundler address, port, and entrypoint."
                                                                        preferredStyle:UIAlertControllerStyleAlert];
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-      textField.placeholder = @"0.0.0.0";
+      textField.placeholder = ipPlaceholder;
     }];
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-      textField.placeholder = @"8081";
+      textField.placeholder = [NSString stringWithFormat:@"%d",RCT_METRO_PORT];
     }];
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
       textField.placeholder = @"index";
@@ -312,9 +313,13 @@ RCT_EXPORT_MODULE()
       UITextField * portTextField = textfields[1];
       UITextField * bundleRootTextField = textfields[2];
       NSString * bundleRoot = bundleRootTextField.text;
-      if(ipTextField.text.length == 0 && portTextField.text.length == 0) {
+      NSString *ip = ipTextField.text;
+      if(ip.length == 0 && portTextField.text.length == 0) {
         [weakSelf setDefaultJSBundle];
         return;
+      }
+      if(ip.length == 0) {
+        ip = ipPlaceholder;
       }
       NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
       formatter.numberStyle = NSNumberFormatterDecimalStyle;
@@ -323,7 +328,7 @@ RCT_EXPORT_MODULE()
         portNumber = [NSNumber numberWithInt: RCT_METRO_PORT];
       }
       [RCTBundleURLProvider sharedSettings].jsLocation = [NSString stringWithFormat:@"%@:%d",
-                                                          ipTextField.text, portNumber.intValue];
+                                                          ip, portNumber.intValue];
       __strong RCTBridge *strongBridge = bridge;
       if (strongBridge) {
         NSURL *bundleURL = bundleRoot.length
